@@ -2,7 +2,6 @@
   <library name="ComGoogleAndroidGmsPlayServices3159.aar">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/TappyTap/build/exploded-bundles/ComGoogleAndroidGmsPlayServices3159.aar/classes.jar!/" />
-      <root url="jar://$PROJECT_DIR$/TappyTap/build/exploded-bundles/ComGoogleAndroidGmsPlayServices3159.aar/classes.jar!/" />
       <root url="file://$PROJECT_DIR$/TappyTap/build/exploded-bundles/ComGoogleAndroidGmsPlayServices3159.aar/res" />
     </CLASSES>
     <JAVADOC />

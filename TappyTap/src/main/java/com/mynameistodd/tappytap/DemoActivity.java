@@ -53,7 +53,8 @@ public class DemoActivity extends Activity {
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     //static final String SERVER_URL = "http://10.0.2.2:8080";
-    static final String SERVER_URL = "http://192.168.2.135:8080";
+    //static final String SERVER_URL = "http://192.168.2.135:8888";
+    static final String SERVER_URL = "http://quantum-transit-341.appspot.com";
     private static final int MAX_ATTEMPTS = 5;
     private static final int BACKOFF_MILLI_SECONDS = 2000;
     private static final Random random = new Random();
@@ -65,7 +66,7 @@ public class DemoActivity extends Activity {
      * Substitute you own sender ID here. This is the project number you got
      * from the API Console, as described in "Getting Started."
      */
-    String SENDER_ID = "688769475066";
+    String SENDER_ID = "355736916350";
 
     /**
      * Tag used on log messages.

@@ -21,12 +21,16 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import java.util.Calendar;
 
 /**
  * This {@code IntentService} does the actual handling of the GCM message.
@@ -78,6 +82,7 @@ public class GcmIntentService extends IntentService {
                 // Post notification of received message.
                 if (extras.containsKey("key1"))
                 {
+                    insertMessage(extras.getString("key1"));
                     sendNotification("Received: " + extras.getString("key1"));
                 }
                 else
@@ -111,5 +116,18 @@ public class GcmIntentService extends IntentService {
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+    }
+
+    public boolean insertMessage(String messageText)
+    {
+        MySQLiteOpenHelper helper = new MySQLiteOpenHelper(this);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        ContentValues ct = new ContentValues();
+        ct.put(MySQLiteOpenHelper.MESSAGE_COLUMN_SENDER, "1");
+        ct.put(MySQLiteOpenHelper.MESSAGE_COLUMN_MESSAGE_TEXT, messageText);
+        ct.put(MySQLiteOpenHelper.MESSAGE_COLUMN_RECEIVED, Calendar.getInstance().getTime().toString());
+        long rows = db.insert(MySQLiteOpenHelper.MESSAGE_TABLE_NAME, null, ct);
+
+        if (rows > 0) { return true; } else { return false; }
     }
 }

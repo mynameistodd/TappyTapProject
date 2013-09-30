@@ -81,6 +81,15 @@
 
         <service android:name="com.mynameistodd.tappytap.GcmIntentService" />
 
+        <activity
+            android:name="com.mynameistodd.tappytap.ListMessages"
+            android:label="@string/title_activity_list_messages" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

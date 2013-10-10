@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="9"
         android:targetSdkVersion="16" />
 
     <!-- GCM connects to Google Services. -->
@@ -37,28 +37,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        <activity
-            android:name="com.mynameistodd.tappytap.DemoActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name"
-            android:launchMode="singleTop" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <!-- <activity -->
-        <!-- android:name="com.mynameistodd.tappytap.MainActivity" -->
-        <!-- android:label="@string/app_name" > -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-        <!-- </activity> -->
+<![CDATA[
 
         !--
         WakefulBroadcastReceiver that will receive intents from GCM
@@ -67,6 +46,7 @@
         The com.google.android.c2dm.permission.SEND permission is necessary
         so only GCM services can send data messages for the app.
         -->
+        ]]>
         <receiver
             android:name="com.mynameistodd.tappytap.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
@@ -83,7 +63,7 @@
 
         <activity
             android:name="com.mynameistodd.tappytap.ListMessages"
-            android:label="@string/title_activity_list_messages" >
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

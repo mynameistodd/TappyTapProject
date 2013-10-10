@@ -19,7 +19,8 @@
         android:text="Sender"
         android:id="@+id/itemSender"
         android:layout_below="@+id/itemMessageText"
-        android:layout_alignParentLeft="true" />
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="7dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -27,6 +28,6 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Date Received"
         android:id="@+id/itemDateReceived"
-        android:layout_centerVertical="true"
+        android:layout_alignTop="@+id/itemSender"
         android:layout_alignParentRight="true" />
 </RelativeLayout>

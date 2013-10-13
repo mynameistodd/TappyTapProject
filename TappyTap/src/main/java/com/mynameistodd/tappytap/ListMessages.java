@@ -8,13 +8,18 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.os.Parcelable;
 import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -36,6 +41,7 @@ import java.util.Random;
 
 public class ListMessages extends ListActivity {
 
+    Intent intent;
     GoogleCloudMessaging gcm;
     String regid;
     Context context;
@@ -59,6 +65,7 @@ public class ListMessages extends ListActivity {
     private SQLiteDatabase db;
     private MySQLiteOpenHelper helper;
     private Cursor dbCursor;
+    NdefMessage[] msgs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +94,31 @@ public class ListMessages extends ListActivity {
     protected void onResume() {
         super.onResume();
 
+        intent = getIntent();
         checkPlayServices();
+
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
+            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+            if (rawMsgs != null) {
+                msgs = new NdefMessage[rawMsgs.length];
+                for (int i = 0; i < rawMsgs.length; i++) {
+                    msgs[i] = (NdefMessage) rawMsgs[i];
+                }
+            }
+
+            NdefRecord[] records = msgs[0].getRecords();
+            String payloadText = "";
+            for (int i=0;i<records.length;i++)
+            {
+                if (records[i].getTnf() == NdefRecord.TNF_WELL_KNOWN && records[i].toMimeType() == "text/plain")
+                {
+                    byte[] payload = records[i].getPayload();
+                    String text = new String(payload);
+                    payloadText+=text;
+                }
+            }
+            Toast.makeText(context,payloadText,Toast.LENGTH_SHORT).show();
+        }
 
         messages = new ArrayList<Message>();
 

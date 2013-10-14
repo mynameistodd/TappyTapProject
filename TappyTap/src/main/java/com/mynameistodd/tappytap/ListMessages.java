@@ -1,7 +1,11 @@
 package com.mynameistodd.tappytap;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -117,7 +121,11 @@ public class ListMessages extends ListActivity {
                     payloadText+=text;
                 }
             }
-            Toast.makeText(context,payloadText,Toast.LENGTH_SHORT).show();
+            DialogFragment followDialog = new FollowDialogFragment();
+            Bundle args = new Bundle();
+            args.putString("followName", payloadText);
+            followDialog.setArguments(args);
+            followDialog.show(getFragmentManager(),"followDialog");
         }
 
         messages = new ArrayList<Message>();
@@ -416,5 +424,31 @@ public class ListMessages extends ListActivity {
         Intent intent = new Intent(DISPLAY_MESSAGE_ACTION);
         intent.putExtra(EXTRA_MESSAGE, message);
         context.sendBroadcast(intent);
+    }
+
+    public class FollowDialogFragment extends DialogFragment
+    {
+        String followName = "empty";
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            followName = getArguments().getString("followName");
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage("Follow " + followName + "?")
+                    .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(getActivity(),"Yes",Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(getActivity(),"Cancel",Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            return builder.create();
+        }
     }
 }

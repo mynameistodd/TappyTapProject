@@ -2,8 +2,8 @@ package com.mynameistodd.tappytap;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.ListActivity;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.ListFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,6 +22,7 @@ import android.os.Parcelable;
 import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -43,7 +44,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class ListMessages extends ListActivity {
+public class ListMessages extends ListFragment {
+
+    public ListMessages() {
+
+    }
 
     Intent intent;
     GoogleCloudMessaging gcm;
@@ -72,15 +77,15 @@ public class ListMessages extends ListActivity {
     NdefMessage[] msgs;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.list_messages);
+        //setContentView(R.layout.list_messages);
 
-        context = getApplicationContext();
+        context = getActivity(); // getApplicationContext();
 
         // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
         if (checkPlayServices()) {
-            gcm = GoogleCloudMessaging.getInstance(this);
+            gcm = GoogleCloudMessaging.getInstance(context);
             regid = getRegistrationId(context);
 
             if (regid.isEmpty()) {
@@ -90,15 +95,15 @@ public class ListMessages extends ListActivity {
             Log.i(TAG, "No valid Google Play Services APK found.");
         }
 
-        helper = new MySQLiteOpenHelper(this);
+        helper = new MySQLiteOpenHelper(context);
         db = helper.getReadableDatabase();
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
 
-        intent = getIntent();
+        intent = getActivity().getIntent();
         checkPlayServices();
 
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
@@ -142,15 +147,15 @@ public class ListMessages extends ListActivity {
             messages.add(msg);
         }
 
-        adapter = new MyArrayAdapter(this, R.layout.list_messages, messages);
+        adapter = new MyArrayAdapter(context, R.layout.list_messages, messages);
         setListAdapter(adapter);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.list_messages, menu);
-        return true;
+        inflater.inflate(R.menu.list_messages, menu);
+        //return true;
     }
 
     /**
@@ -159,14 +164,14 @@ public class ListMessages extends ListActivity {
      * the Google Play Store or enable it in the device's system settings.
      */
     private boolean checkPlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
         if (resultCode != ConnectionResult.SUCCESS) {
             if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                GooglePlayServicesUtil.getErrorDialog(resultCode, getActivity(),
                         PLAY_SERVICES_RESOLUTION_REQUEST).show();
             } else {
                 Log.i(TAG, "This device is not supported.");
-                finish();
+                getActivity().finish();
             }
             return false;
         }
@@ -280,7 +285,7 @@ public class ListMessages extends ListActivity {
     private SharedPreferences getGcmPreferences(Context context) {
         // This sample app persists the registration ID in shared preferences, but
         // how you store the regID in your app is up to you.
-        return getSharedPreferences(ListMessages.class.getSimpleName(),
+        return getActivity().getSharedPreferences(ListMessages.class.getSimpleName(),
                 Context.MODE_PRIVATE);
     }
 

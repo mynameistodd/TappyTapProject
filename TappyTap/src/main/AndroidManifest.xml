@@ -66,22 +66,31 @@
 
         <service android:name="com.mynameistodd.tappytap.GcmIntentService" />
 
+        <!--<activity-->
+            <!--android:name="com.mynameistodd.tappytap.ListMessages"-->
+            <!--android:label="@string/app_name" >-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.nfc.action.NDEF_DISCOVERED" />-->
+
+                <!--<category android:name="android.intent.category.DEFAULT" />-->
+                <!--&lt;!&ndash; <data android:scheme="http" &ndash;&gt;-->
+                <!--&lt;!&ndash; android:host="mynameistodd.com" &ndash;&gt;-->
+                <!--&lt;!&ndash; android:pathPrefix="/index.html"/> &ndash;&gt;-->
+                <!--<data android:mimeType="text/plain" />-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
         <activity
-            android:name="com.mynameistodd.tappytap.ListMessages"
-            android:label="@string/app_name" >
+            android:name="com.mynameistodd.tappytap.MainActivity"
+            android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <!-- <data android:scheme="http" -->
-                <!-- android:host="mynameistodd.com" -->
-                <!-- android:pathPrefix="/index.html"/> -->
-                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
     </application>

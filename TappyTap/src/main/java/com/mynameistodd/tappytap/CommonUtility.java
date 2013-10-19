@@ -30,6 +30,7 @@ public class CommonUtility {
 
     public static final String TAG = "TappyTap";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    public static final String PREFERENCES_FILE_NAME = "TappyTapPrefs";
     public static final String PROPERTY_REG_ID = "registration_id";
     private static final String PROPERTY_APP_VERSION = "appVersion";
     //static final String SERVER_URL = "http://10.0.2.2:8080";
@@ -126,7 +127,7 @@ public class CommonUtility {
     private static SharedPreferences getGcmPreferences(Context context) {
         // This sample app persists the registration ID in shared preferences, but
         // how you store the regID in your app is up to you.
-        return context.getSharedPreferences(ListMessages.class.getSimpleName(),
+        return context.getSharedPreferences(PREFERENCES_FILE_NAME,
                 Context.MODE_PRIVATE);
     }
 

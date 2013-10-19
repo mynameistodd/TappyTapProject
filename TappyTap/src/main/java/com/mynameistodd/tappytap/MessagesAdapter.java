@@ -12,12 +12,12 @@ import java.util.List;
 /**
  * Created by todd on 9/30/13.
  */
-public class MyArrayAdapter extends ArrayAdapter<Message> {
+public class MessagesAdapter extends ArrayAdapter<Message> {
 
     private Context context;
     private List<Message> objects;
 
-    public MyArrayAdapter(Context context, int resource, List<Message> objects) {
+    public MessagesAdapter(Context context, int resource, List<Message> objects) {
         super(context, resource, objects);
         this.context = context;
         this.objects = objects;

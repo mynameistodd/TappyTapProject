@@ -29,11 +29,11 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         // getItem is called to instantiate the fragment for the given page.
         // Return a DummySectionFragment (defined as a static inner class
         // below) with the page number as its lone argument.
-        Fragment fragment = new ListMessages();
+        Fragment fragment = new MessagesFragment();
         switch (position)
         {
             case 0:
-                fragment = new ListMessages();
+                fragment = new MessagesFragment();
                 break;
             case 1:
                 fragment = new SubscriptionsFragment();

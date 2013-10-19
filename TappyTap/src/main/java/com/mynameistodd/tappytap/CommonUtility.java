@@ -1,11 +1,13 @@
 package com.mynameistodd.tappytap;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -268,5 +270,16 @@ public class CommonUtility {
         Intent intent = new Intent(DISPLAY_MESSAGE_ACTION);
         intent.putExtra(EXTRA_MESSAGE, message);
         context.sendBroadcast(intent);
+    }
+
+    public static boolean insertSubscription(Context context, String name)
+    {
+        MySQLiteOpenHelper helper = new MySQLiteOpenHelper(context);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        ContentValues ct = new ContentValues();
+        ct.put(MySQLiteOpenHelper.SUBSCRIPTION_COLUMN_NAME, name);
+        long rows = db.insert(MySQLiteOpenHelper.SUBSCRIPTION_TABLE_NAME, null, ct);
+
+        if (rows > 0) { return true; } else { return false; }
     }
 }

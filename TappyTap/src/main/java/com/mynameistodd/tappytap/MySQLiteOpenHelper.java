@@ -11,7 +11,7 @@ import android.provider.BaseColumns;
 public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "tappy_tap.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     public static final String MESSAGE_TABLE_NAME = "message";
     public static final String MESSAGE_COLUMN_SENDER = "sender";
     public static final String MESSAGE_COLUMN_MESSAGE_TEXT = "messageText";
@@ -23,6 +23,13 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
                     MESSAGE_COLUMN_MESSAGE_TEXT + " TEXT, " +
                     MESSAGE_COLUMN_RECEIVED + " TEXT);";
 
+    public static final String SUBSCRIPTION_TABLE_NAME = "subscription";
+    public static final String SUBSCRIPTION_COLUMN_NAME = "name";
+    private static final String SUBSCRIPTION_TABLE_CREATE =
+            "CREATE TABLE " + SUBSCRIPTION_TABLE_NAME + " (" +
+                    BaseColumns._ID + " INTEGER PRIMARY KEY, " +
+                    SUBSCRIPTION_COLUMN_NAME + " TEXT);";
+
     MySQLiteOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -30,10 +37,14 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(MESSAGE_TABLE_CREATE);
+        db.execSQL(SUBSCRIPTION_TABLE_CREATE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        if (oldVersion == 1 && newVersion == 2)
+        {
+            db.execSQL(SUBSCRIPTION_TABLE_CREATE);
+        }
     }
 }

@@ -11,5 +11,7 @@
     <string name="title_activity_main">Tappy Tap</string>
     <string name="title_section1">History</string>
     <string name="title_section2">Subscriptions</string>
+    <string name="follow_yes">Got it!</string>
+    <string name="follow_no">Never mind then.</string>
 
 </resources>

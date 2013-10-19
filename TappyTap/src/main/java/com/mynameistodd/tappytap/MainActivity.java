@@ -217,13 +217,14 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                     .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(getActivity(), "Yes", Toast.LENGTH_SHORT).show();
+                            CommonUtility.insertSubscription(context, followName);
+                            Toast.makeText(getActivity(), getString(R.string.follow_yes), Toast.LENGTH_SHORT).show();
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(getActivity(), "Cancel", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), getString(R.string.follow_no), Toast.LENGTH_SHORT).show();
                         }
                     });
             return builder.create();

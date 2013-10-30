@@ -7,6 +7,7 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -20,11 +21,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.common.Scopes;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.plus.PlusClient;
 
 import java.io.IOException;
 
-public class MainActivity extends FragmentActivity implements ActionBar.TabListener {
+public class MainActivity extends FragmentActivity implements
+        ActionBar.TabListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -47,6 +53,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     String regid;
     String SENDER_ID = "355736916350";
     NdefMessage[] msgs;
+    private PlusClient mPlusClient;
+    private static final int REQUEST_CODE_RESOLVE_ERR = 9000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +108,17 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         } else {
             Log.i(CommonUtility.TAG, "No valid Google Play Services APK found.");
         }
+
+        mPlusClient = new PlusClient.Builder(context, this, this)
+                .setVisibleActivities("http://schemas.google.com/AddActivity", "http://schemas.google.com/BuyActivity")
+                .setScopes(Scopes.PLUS_LOGIN)  // Space separated list of scopes
+                .build();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mPlusClient.connect();
     }
 
     @Override
@@ -140,6 +159,12 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        mPlusClient.disconnect();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -159,6 +184,17 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+        if (mPlusClient.isConnected()) {
+            mPlusClient.clearDefaultAccount();
+            //mPlusClient.disconnect();
+            //mPlusClient.connect();
+            mPlusClient.revokeAccessAndDisconnect(new PlusClient.OnAccessRevokedListener() {
+                @Override
+                public void onAccessRevoked(ConnectionResult connectionResult) {
+                    mPlusClient.connect();
+                }
+            });
+        }
     }
 
     /**
@@ -229,5 +265,53 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                     });
             return builder.create();
         }
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+//        if (mConnectionProgressDialog.isShowing()) {
+//            // The user clicked the sign-in button already. Start to resolve
+//            // connection errors. Wait until onConnected() to dismiss the
+//            // connection dialog.
+//            if (result.hasResolution()) {
+//                try {
+//                    result.startResolutionForResult(this, REQUEST_CODE_RESOLVE_ERR);
+//                } catch (IntentSender.SendIntentException e) {
+//                    mPlusClient.connect();
+//                }
+//            }
+//        }
+
+        // Save the intent so that we can start an activity when the user clicks
+        // the sign-in button.
+        //mConnectionResult = result;
+        if (result.hasResolution()) {
+            try {
+                result.startResolutionForResult(this, REQUEST_CODE_RESOLVE_ERR);
+            } catch (IntentSender.SendIntentException e) {
+                mPlusClient.connect();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
+        if (requestCode == REQUEST_CODE_RESOLVE_ERR && responseCode == RESULT_OK) {
+            //mConnectionResult = null;
+            mPlusClient.connect();
+        }
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        // We've resolved any connection errors.
+        //mConnectionProgressDialog.dismiss();
+        String accountName = mPlusClient.getAccountName();
+        Toast.makeText(this, accountName + " is connected.", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onDisconnected() {
+        Log.d(CommonUtility.TAG, "disconnected");
     }
 }

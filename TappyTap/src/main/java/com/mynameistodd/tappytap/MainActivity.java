@@ -7,7 +7,6 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -286,11 +285,12 @@ public class MainActivity extends FragmentActivity implements
         // the sign-in button.
         //mConnectionResult = result;
         if (result.hasResolution()) {
-            try {
-                result.startResolutionForResult(this, REQUEST_CODE_RESOLVE_ERR);
-            } catch (IntentSender.SendIntentException e) {
-                mPlusClient.connect();
-            }
+            startActivity(new Intent(context, LoginActivity.class));
+//            try {
+//                result.startResolutionForResult(this, REQUEST_CODE_RESOLVE_ERR);
+//            } catch (IntentSender.SendIntentException e) {
+//                mPlusClient.connect();
+//            }
         }
     }
 

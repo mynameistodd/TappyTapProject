@@ -18,6 +18,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -165,15 +166,24 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-    
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId())
+        {
+            case R.id.sign_out:
+                signOut();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     @Override
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        // When the given tab is selected, switch to the corresponding page in
-        // the ViewPager.
         mViewPager.setCurrentItem(tab.getPosition());
     }
 
@@ -183,17 +193,6 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        if (mPlusClient.isConnected()) {
-            mPlusClient.clearDefaultAccount();
-            //mPlusClient.disconnect();
-            //mPlusClient.connect();
-            mPlusClient.revokeAccessAndDisconnect(new PlusClient.OnAccessRevokedListener() {
-                @Override
-                public void onAccessRevoked(ConnectionResult connectionResult) {
-                    mPlusClient.connect();
-                }
-            });
-        }
     }
 
     /**
@@ -268,36 +267,14 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
-//        if (mConnectionProgressDialog.isShowing()) {
-//            // The user clicked the sign-in button already. Start to resolve
-//            // connection errors. Wait until onConnected() to dismiss the
-//            // connection dialog.
-//            if (result.hasResolution()) {
-//                try {
-//                    result.startResolutionForResult(this, REQUEST_CODE_RESOLVE_ERR);
-//                } catch (IntentSender.SendIntentException e) {
-//                    mPlusClient.connect();
-//                }
-//            }
-//        }
-
-        // Save the intent so that we can start an activity when the user clicks
-        // the sign-in button.
-        //mConnectionResult = result;
         if (result.hasResolution()) {
             startActivity(new Intent(context, LoginActivity.class));
-//            try {
-//                result.startResolutionForResult(this, REQUEST_CODE_RESOLVE_ERR);
-//            } catch (IntentSender.SendIntentException e) {
-//                mPlusClient.connect();
-//            }
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
         if (requestCode == REQUEST_CODE_RESOLVE_ERR && responseCode == RESULT_OK) {
-            //mConnectionResult = null;
             mPlusClient.connect();
         }
     }
@@ -305,7 +282,6 @@ public class MainActivity extends FragmentActivity implements
     @Override
     public void onConnected(Bundle connectionHint) {
         // We've resolved any connection errors.
-        //mConnectionProgressDialog.dismiss();
         String accountName = mPlusClient.getAccountName();
         Toast.makeText(this, accountName + " is connected.", Toast.LENGTH_LONG).show();
     }
@@ -313,5 +289,17 @@ public class MainActivity extends FragmentActivity implements
     @Override
     public void onDisconnected() {
         Log.d(CommonUtility.TAG, "disconnected");
+    }
+
+    private void signOut() {
+        if (mPlusClient.isConnected()) {
+            mPlusClient.clearDefaultAccount();
+            mPlusClient.revokeAccessAndDisconnect(new PlusClient.OnAccessRevokedListener() {
+                @Override
+                public void onAccessRevoked(ConnectionResult connectionResult) {
+                    mPlusClient.connect();
+                }
+            });
+        }
     }
 }

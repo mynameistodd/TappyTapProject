@@ -15,5 +15,6 @@
     <string name="follow_no">Never mind then.</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="hello_world">Hello world!</string>
+    <string name="sign_out">Sign Out</string>
 
 </resources>

@@ -38,6 +38,5 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
         dateReceived.setText(msg.getReceived());
 
         return rowView;
-        //return super.getView(position, convertView, parent);
     }
 }

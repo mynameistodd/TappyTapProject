@@ -56,6 +56,7 @@ public class MessagesFragment extends ListFragment {
 
         adapter = new MessagesAdapter(context, R.layout.list_messages, messages);
         setListAdapter(adapter);
+        setEmptyText(context.getString(R.string.nothing_found));
     }
 
     @Override

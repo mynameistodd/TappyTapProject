@@ -32,7 +32,7 @@ public class SubscriptionsAdapter extends ArrayAdapter<Subscription> {
 
         Subscription sub = objects.get(position);
 
-        subscribedTo.setText(sub.getName());
+        subscribedTo.setText(sub.getName() + sub.getId());
 
         return rowView;
     }

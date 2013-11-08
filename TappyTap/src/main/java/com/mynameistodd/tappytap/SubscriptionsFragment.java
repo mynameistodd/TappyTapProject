@@ -1,16 +1,17 @@
 package com.mynameistodd.tappytap;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.provider.BaseColumns;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SubscriptionsFragment extends ListFragment {
@@ -22,38 +23,33 @@ public class SubscriptionsFragment extends ListFragment {
     Context context;
     private ArrayAdapter<Subscription> adapter;
     private List<Subscription> subscriptions;
-    private SQLiteDatabase db;
-    private MySQLiteOpenHelper helper;
-    private Cursor dbCursor;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         context = getActivity();
-
-        helper = new MySQLiteOpenHelper(context);
-        db = helper.getReadableDatabase();
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        subscriptions = new ArrayList<Subscription>();
+        subscriptions = CommonUtility.getAllSubscriptions(context);
 
-        dbCursor = db.query(MySQLiteOpenHelper.SUBSCRIPTION_TABLE_NAME, null, null,null,null,null,null);
-        while (dbCursor.moveToNext())
-        {
-            Subscription sub = new Subscription();
-            sub.setId(dbCursor.getInt(dbCursor.getColumnIndex(BaseColumns._ID)));
-            sub.setName(dbCursor.getString(dbCursor.getColumnIndex(MySQLiteOpenHelper.SUBSCRIPTION_COLUMN_NAME)));
-            subscriptions.add(sub);
-        }
-
-        adapter = new SubscriptionsAdapter(context, R.layout.list_subscription_item, subscriptions);
+        adapter = new SubscriptionsAdapter(context, R.layout.list_subscriptions, subscriptions);
         setListAdapter(adapter);
+        setEmptyText(context.getString(R.string.no_subscriptions));
+
+        Bundle args = getArguments();
+        if (args != null && !args.isEmpty())
+        {
+            DialogFragment followDialog = new FollowDialogFragment();
+            followDialog.setArguments(args);
+            followDialog.show(getFragmentManager(),"followDialog");
+        }
     }
+
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -61,4 +57,39 @@ public class SubscriptionsFragment extends ListFragment {
         inflater.inflate(R.menu.list_subscriptions, menu);
     }
 
+    public class FollowDialogFragment extends DialogFragment
+    {
+        String followName = "empty";
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            followName = getArguments().getString("followName");
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage("Follow \"" + followName + "\"?")
+                    .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            CommonUtility.insertSubscription(context, followName);
+                            Toast.makeText(getActivity(), getString(R.string.follow_yes), Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(getActivity(), getString(R.string.follow_no), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            return builder.create();
+        }
+
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+            super.onDismiss(dialog);
+            subscriptions = CommonUtility.getAllSubscriptions(context);
+
+            adapter.clear();
+            adapter.addAll(subscriptions);
+        }
+    }
 }

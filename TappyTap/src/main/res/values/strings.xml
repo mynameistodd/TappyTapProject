@@ -16,5 +16,7 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="sign_out">Sign Out</string>
+    <string name="nothing_found">Nothing Found.</string>
+    <string name="no_subscriptions">No subscriptions yet.</string>
 
 </resources>

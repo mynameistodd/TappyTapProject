@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -18,8 +20,10 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -282,5 +286,20 @@ public class CommonUtility {
         long rows = db.insert(MySQLiteOpenHelper.SUBSCRIPTION_TABLE_NAME, null, ct);
 
         if (rows > 0) { return true; } else { return false; }
+    }
+
+    public static List<Subscription> getAllSubscriptions(Context context) {
+        List<Subscription> subscriptions = new ArrayList<Subscription>();
+        MySQLiteOpenHelper helper = new MySQLiteOpenHelper(context);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        Cursor dbCursor = db.query(MySQLiteOpenHelper.SUBSCRIPTION_TABLE_NAME, null, null,null,null,null,null);
+        while (dbCursor.moveToNext())
+        {
+            Subscription sub = new Subscription();
+            sub.setId(dbCursor.getInt(dbCursor.getColumnIndex(BaseColumns._ID)));
+            sub.setName(dbCursor.getString(dbCursor.getColumnIndex(MySQLiteOpenHelper.SUBSCRIPTION_COLUMN_NAME)));
+            subscriptions.add(sub);
+        }
+        return subscriptions;
     }
 }

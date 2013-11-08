@@ -1,19 +1,12 @@
 package com.mynameistodd.tappytap;
 
 import android.app.ActionBar;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -52,7 +45,6 @@ public class MainActivity extends FragmentActivity implements
     GoogleCloudMessaging gcm;
     String regid;
     String SENDER_ID = "355736916350";
-    NdefMessage[] msgs;
     private PlusClient mPlusClient;
     private static final int REQUEST_CODE_RESOLVE_ERR = 9000;
 
@@ -60,7 +52,7 @@ public class MainActivity extends FragmentActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        intent = getIntent();
         context = this;
 
         // Set up the action bar.
@@ -69,7 +61,7 @@ public class MainActivity extends FragmentActivity implements
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), context);
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), context, intent);
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -124,37 +116,11 @@ public class MainActivity extends FragmentActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        intent = getIntent();
+
         CommonUtility.checkPlayServices(this);
 
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
-            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-            if (rawMsgs != null) {
-                msgs = new NdefMessage[rawMsgs.length];
-                for (int i = 0; i < rawMsgs.length; i++) {
-                    msgs[i] = (NdefMessage) rawMsgs[i];
-                }
-            }
-
-            if (msgs != null && msgs.length > 0)
-            {
-                NdefRecord[] records = msgs[0].getRecords();
-                String payloadText = "";
-                for (int i=0;i<records.length;i++)
-                {
-                    if (records[i].getTnf() == NdefRecord.TNF_WELL_KNOWN && records[i].toMimeType() == "text/plain")
-                    {
-                        byte[] payload = records[i].getPayload();
-                        String text = new String(payload);
-                        payloadText += text.substring(3);
-                    }
-                }
-                DialogFragment followDialog = new FollowDialogFragment();
-                Bundle args = new Bundle();
-                args.putString("followName", payloadText);
-                followDialog.setArguments(args);
-                followDialog.show(getSupportFragmentManager(),"followDialog");
-            }
+            mViewPager.setCurrentItem(1);
         }
     }
 
@@ -236,33 +202,6 @@ public class MainActivity extends FragmentActivity implements
             protected void onPostExecute(String msg) {
             }
         }.execute(null, null, null);
-    }
-
-    public class FollowDialogFragment extends DialogFragment
-    {
-        String followName = "empty";
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            followName = getArguments().getString("followName");
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage("Follow \"" + followName + "\"?")
-                    .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            CommonUtility.insertSubscription(context, followName);
-                            Toast.makeText(getActivity(), getString(R.string.follow_yes), Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(getActivity(), getString(R.string.follow_no), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-            return builder.create();
-        }
     }
 
     @Override

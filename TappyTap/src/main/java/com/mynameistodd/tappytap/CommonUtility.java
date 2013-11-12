@@ -1,15 +1,10 @@
 package com.mynameistodd.tappytap;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.provider.BaseColumns;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -20,10 +15,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -43,9 +36,6 @@ public class CommonUtility {
     private static final int MAX_ATTEMPTS = 5;
     private static final int BACKOFF_MILLI_SECONDS = 2000;
     private static final Random random = new Random();
-    public static final String EXTRA_MESSAGE = "message";
-    static final String DISPLAY_MESSAGE_ACTION =
-            "com.google.android.gcm.demo.app.DISPLAY_MESSAGE";
 
     /**
      * Check the device to make sure it has the Google Play Services APK. If
@@ -136,32 +126,36 @@ public class CommonUtility {
     }
 
     /**
-     * Register this account/device pair within the server.
+     * Enroll this account/device pair within the server.
      *
      */
-    public static void register(final Context context, final String regId) {
+    public static void enroll(final Context context, final String regId, final String userId, final String senderId) {
         Log.i(TAG, "registering device (regId = " + regId + ")");
+        Log.i(TAG, "of user (userId = " + userId + ")");
+        Log.i(TAG, "for sender (senderId = " + senderId + ")");
+
         String serverUrl = SERVER_URL + "/register";
         Map<String, String> params = new HashMap<String, String>();
         params.put("regId", regId);
+        params.put("userId", userId);
+        params.put("senderId", senderId);
+
         long backoff = BACKOFF_MILLI_SECONDS + random.nextInt(1000);
         // Once GCM returns a registration id, we need to register it in the
         // demo server. As the server might be down, we will retry it a couple
         // times.
         for (int i = 1; i <= MAX_ATTEMPTS; i++) {
-            Log.d(TAG, "Attempt #" + i + " to register");
+            Log.d(TAG, "Attempt #" + i + " to enroll");
             try {
-                displayMessage(context, context.getString(
-                        R.string.server_registering, i, MAX_ATTEMPTS));
+                Log.i(TAG, context.getString(R.string.server_registering, i, MAX_ATTEMPTS));
                 post(serverUrl, params);
-                String message = context.getString(R.string.server_registered);
-                displayMessage(context, message);
+                Log.i(TAG, context.getString(R.string.server_registered, i, MAX_ATTEMPTS));
                 return;
             } catch (IOException e) {
                 // Here we are simplifying and retrying on any error; in a real
                 // application, it should retry only on unrecoverable errors
                 // (like HTTP error code 503).
-                Log.e(TAG, "Failed to register on attempt " + i + ":" + e);
+                Log.e(TAG, "Failed to enroll on attempt " + i + ":" + e);
                 if (i == MAX_ATTEMPTS) {
                     break;
                 }
@@ -178,9 +172,7 @@ public class CommonUtility {
                 backoff *= 2;
             }
         }
-        String message = context.getString(R.string.server_register_error,
-                MAX_ATTEMPTS);
-        displayMessage(context, message);
+        Log.i(TAG, context.getString(R.string.server_register_error, MAX_ATTEMPTS));
     }
 
     /**
@@ -194,7 +186,7 @@ public class CommonUtility {
         try {
             post(serverUrl, params);
             String message = context.getString(R.string.server_unregistered);
-            displayMessage(context, message);
+            //displayMessage(context, message);
         } catch (IOException e) {
             // At this point the device is unregistered from GCM, but still
             // registered in the server.
@@ -203,7 +195,7 @@ public class CommonUtility {
             // a "NotRegistered" error message and should unregister the device.
             String message = context.getString(R.string.server_unregister_error,
                     e.getMessage());
-            displayMessage(context, message);
+            //displayMessage(context, message);
         }
     }
 
@@ -260,46 +252,5 @@ public class CommonUtility {
                 conn.disconnect();
             }
         }
-    }
-
-    /**
-     * Notifies UI to display a message.
-     * <p>
-     * This method is defined in the common helper because it's used both by
-     * the UI and the background service.
-     *
-     * @param context application's context.
-     * @param message message to be displayed.
-     */
-    static void displayMessage(Context context, String message) {
-        Intent intent = new Intent(DISPLAY_MESSAGE_ACTION);
-        intent.putExtra(EXTRA_MESSAGE, message);
-        context.sendBroadcast(intent);
-    }
-
-    public static boolean insertSubscription(Context context, String name)
-    {
-        MySQLiteOpenHelper helper = new MySQLiteOpenHelper(context);
-        SQLiteDatabase db = helper.getWritableDatabase();
-        ContentValues ct = new ContentValues();
-        ct.put(MySQLiteOpenHelper.SUBSCRIPTION_COLUMN_NAME, name);
-        long rows = db.insert(MySQLiteOpenHelper.SUBSCRIPTION_TABLE_NAME, null, ct);
-
-        if (rows > 0) { return true; } else { return false; }
-    }
-
-    public static List<Subscription> getAllSubscriptions(Context context) {
-        List<Subscription> subscriptions = new ArrayList<Subscription>();
-        MySQLiteOpenHelper helper = new MySQLiteOpenHelper(context);
-        SQLiteDatabase db = helper.getWritableDatabase();
-        Cursor dbCursor = db.query(MySQLiteOpenHelper.SUBSCRIPTION_TABLE_NAME, null, null,null,null,null,null);
-        while (dbCursor.moveToNext())
-        {
-            Subscription sub = new Subscription();
-            sub.setId(dbCursor.getInt(dbCursor.getColumnIndex(BaseColumns._ID)));
-            sub.setName(dbCursor.getString(dbCursor.getColumnIndex(MySQLiteOpenHelper.SUBSCRIPTION_COLUMN_NAME)));
-            subscriptions.add(sub);
-        }
-        return subscriptions;
     }
 }

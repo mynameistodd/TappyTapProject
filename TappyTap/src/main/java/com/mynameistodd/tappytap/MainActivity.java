@@ -46,7 +46,7 @@ public class MainActivity extends FragmentActivity implements
     String regid;
     String SENDER_ID = "355736916350";
     private PlusClient mPlusClient;
-    private static final int REQUEST_CODE_RESOLVE_ERR = 9000;
+    private static final int REQUEST_CODE_LOGIN_ACTIVITY = 8000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,16 +179,16 @@ public class MainActivity extends FragmentActivity implements
                     regid = gcm.register(SENDER_ID);
                     msg = "Device registered, registration ID=" + regid;
 
-                    // You should send the registration ID to your server over HTTP, so it
-                    // can use GCM/HTTP or CCS to send messages to your app.
-                    CommonUtility.register(context, regid);
-
-                    // For this demo: we don't need to send it because the device will send
-                    // upstream messages to a server that echo back the message using the
-                    // 'from' address in the message.
-
                     // Persist the regID - no need to register again.
                     CommonUtility.storeRegistrationId(context, regid);
+
+                    // You should send the registration ID to your server over HTTP, so it
+                    // can use GCM/HTTP or CCS to send messages to your app.
+                    if (mPlusClient.isConnected())
+                    {
+                        CommonUtility.enroll(context, regid, mPlusClient.getAccountName(), "69");
+                    }
+
                 } catch (IOException ex) {
                     msg = "Error :" + ex.getMessage();
                     // If there is an error, don't just keep trying to register.
@@ -207,14 +207,15 @@ public class MainActivity extends FragmentActivity implements
     @Override
     public void onConnectionFailed(ConnectionResult result) {
         if (result.hasResolution()) {
-            startActivity(new Intent(context, LoginActivity.class));
+            startActivityForResult(new Intent(context, LoginActivity.class), REQUEST_CODE_LOGIN_ACTIVITY);
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
-        if (requestCode == REQUEST_CODE_RESOLVE_ERR && responseCode == RESULT_OK) {
+        if (requestCode == REQUEST_CODE_LOGIN_ACTIVITY && responseCode == RESULT_OK) {
             mPlusClient.connect();
+            registerInBackground();
         }
     }
 
@@ -223,6 +224,7 @@ public class MainActivity extends FragmentActivity implements
         // We've resolved any connection errors.
         String accountName = mPlusClient.getAccountName();
         Toast.makeText(this, accountName + " is connected.", Toast.LENGTH_LONG).show();
+        Log.i(CommonUtility.TAG, accountName + " is connected.");
     }
 
     @Override

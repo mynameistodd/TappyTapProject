@@ -1,9 +1,14 @@
 package com.mynameistodd.tappytap;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by todd on 9/27/13.
@@ -46,5 +51,31 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         {
             db.execSQL(SUBSCRIPTION_TABLE_CREATE);
         }
+    }
+
+    public static boolean insertSubscription(Context context, String name)
+    {
+        MySQLiteOpenHelper helper = new MySQLiteOpenHelper(context);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        ContentValues ct = new ContentValues();
+        ct.put(SUBSCRIPTION_COLUMN_NAME, name);
+        long rows = db.insert(SUBSCRIPTION_TABLE_NAME, null, ct);
+
+        if (rows > 0) { return true; } else { return false; }
+    }
+
+    public static List<Subscription> getAllSubscriptions(Context context) {
+        List<Subscription> subscriptions = new ArrayList<Subscription>();
+        MySQLiteOpenHelper helper = new MySQLiteOpenHelper(context);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        Cursor dbCursor = db.query(SUBSCRIPTION_TABLE_NAME, null, null,null,null,null,null);
+        while (dbCursor.moveToNext())
+        {
+            Subscription sub = new Subscription();
+            sub.setId(dbCursor.getInt(dbCursor.getColumnIndex(BaseColumns._ID)));
+            sub.setName(dbCursor.getString(dbCursor.getColumnIndex(SUBSCRIPTION_COLUMN_NAME)));
+            subscriptions.add(sub);
+        }
+        return subscriptions;
     }
 }

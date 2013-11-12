@@ -130,7 +130,6 @@ public class LoginActivity extends Activity implements ConnectionCallbacks, OnCo
         mConnectionProgressDialog.dismiss();
         String accountName = mPlusClient.getAccountName();
         Toast.makeText(this, accountName + " is connected.", Toast.LENGTH_LONG).show();
-        finish();
     }
 
     @Override
@@ -139,6 +138,8 @@ public class LoginActivity extends Activity implements ConnectionCallbacks, OnCo
             mConnectionResult = null;
             mPlusClient.connect();
         }
+        setResult(responseCode, intent);
+        finish();
     }
 
     @Override

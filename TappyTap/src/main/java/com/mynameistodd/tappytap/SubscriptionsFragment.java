@@ -34,7 +34,7 @@ public class SubscriptionsFragment extends ListFragment {
     public void onResume() {
         super.onResume();
 
-        subscriptions = CommonUtility.getAllSubscriptions(context);
+        subscriptions = MySQLiteOpenHelper.getAllSubscriptions(context);
 
         adapter = new SubscriptionsAdapter(context, R.layout.list_subscriptions, subscriptions);
         setListAdapter(adapter);
@@ -48,8 +48,6 @@ public class SubscriptionsFragment extends ListFragment {
             followDialog.show(getFragmentManager(),"followDialog");
         }
     }
-
-
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -70,7 +68,7 @@ public class SubscriptionsFragment extends ListFragment {
                     .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            CommonUtility.insertSubscription(context, followName);
+                            MySQLiteOpenHelper.insertSubscription(context, followName);
                             Toast.makeText(getActivity(), getString(R.string.follow_yes), Toast.LENGTH_SHORT).show();
                         }
                     })
@@ -86,7 +84,7 @@ public class SubscriptionsFragment extends ListFragment {
         @Override
         public void onDismiss(DialogInterface dialog) {
             super.onDismiss(dialog);
-            subscriptions = CommonUtility.getAllSubscriptions(context);
+            subscriptions = MySQLiteOpenHelper.getAllSubscriptions(context);
 
             adapter.clear();
             adapter.addAll(subscriptions);

@@ -1,5 +1,6 @@
 package com.mynameistodd.tappytap;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -23,6 +24,25 @@ public class SubscriptionsFragment extends ListFragment {
     Context context;
     private ArrayAdapter<Subscription> adapter;
     private List<Subscription> subscriptions;
+    OnEnrollListener mCallback;
+
+    // Container Activity must implement this interface
+    public interface OnEnrollListener {
+        public void onEnroll(String senderId);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnEnrollListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnEnrollListener");
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,16 +78,19 @@ public class SubscriptionsFragment extends ListFragment {
     public class FollowDialogFragment extends DialogFragment
     {
         String followName = "empty";
+        String senderId = "69";
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             followName = getArguments().getString("followName");
+            //senderId = getArguments().getString("senderId");
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setMessage("Follow \"" + followName + "\"?")
                     .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            mCallback.onEnroll(senderId);
                             MySQLiteOpenHelper.insertSubscription(context, followName);
                             Toast.makeText(getActivity(), getString(R.string.follow_yes), Toast.LENGTH_SHORT).show();
                         }

@@ -23,7 +23,9 @@ import com.google.android.gms.plus.PlusClient;
 import java.io.IOException;
 
 public class MainActivity extends FragmentActivity implements
-        ActionBar.TabListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
+        ActionBar.TabListener,
+        GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener,
+        SubscriptionsFragment.OnEnrollListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -202,6 +204,24 @@ public class MainActivity extends FragmentActivity implements
             protected void onPostExecute(String msg) {
             }
         }.execute(null, null, null);
+    }
+
+    @Override
+    public void onEnroll(String senderId) {
+        if (mPlusClient.isConnected())
+        {
+            new AsyncTask<String, Void, Void>() {
+
+                @Override
+                protected Void doInBackground(String... params) {
+                    String senderId = params[0];
+                    CommonUtility.enroll(context, regid, mPlusClient.getAccountName(), senderId);
+                    return null;
+                }
+
+            }.execute(senderId);
+
+        }
     }
 
     @Override

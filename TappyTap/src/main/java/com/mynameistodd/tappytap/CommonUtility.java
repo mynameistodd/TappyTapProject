@@ -32,7 +32,7 @@ public class CommonUtility {
     private static final String PROPERTY_APP_VERSION = "appVersion";
     //static final String SERVER_URL = "http://10.0.2.2:8080";
     //static final String SERVER_URL = "http://192.168.2.135:8888";
-    static final String SERVER_URL = "http://quantum-transit-341.appspot.com";
+    static final String SERVER_URL = "http://tappytapdata.appspot.com";
     private static final int MAX_ATTEMPTS = 5;
     private static final int BACKOFF_MILLI_SECONDS = 2000;
     private static final Random random = new Random();

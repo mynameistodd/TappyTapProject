@@ -8,8 +8,13 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -24,11 +29,12 @@ public class SubscriptionsFragment extends ListFragment {
     Context context;
     private ArrayAdapter<Subscription> adapter;
     private List<Subscription> subscriptions;
-    OnEnrollListener mCallback;
+    SubscriptionCallbacks mCallbacks;
 
     // Container Activity must implement this interface
-    public interface OnEnrollListener {
+    public interface SubscriptionCallbacks {
         public void onEnroll(String senderId);
+        public void onUnEnroll(String senderId);
     }
 
     @Override
@@ -38,9 +44,9 @@ public class SubscriptionsFragment extends ListFragment {
         // This makes sure that the container activity has implemented
         // the callback interface. If not, it throws an exception
         try {
-            mCallback = (OnEnrollListener) activity;
+            mCallbacks = (SubscriptionCallbacks) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnEnrollListener");
+            throw new ClassCastException(activity.toString() + " must implement SubscriptionCallbacks");
         }
     }
 
@@ -67,6 +73,29 @@ public class SubscriptionsFragment extends ListFragment {
             followDialog.setArguments(args);
             followDialog.show(getFragmentManager(),"followDialog");
         }
+        registerForContextMenu(getListView());
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.subscription_context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.unsubscribe:
+                Log.d(CommonUtility.TAG, "info id: " + info.id);
+                Log.d(CommonUtility.TAG, "subscription item: " + subscriptions.get((int) info.id).getId());
+                mCallbacks.onUnEnroll(String.valueOf(subscriptions.get((int) info.id).getId()));
+                //remove from database (or mark removed), update list
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
     @Override
@@ -90,7 +119,7 @@ public class SubscriptionsFragment extends ListFragment {
                     .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            mCallback.onEnroll(senderId);
+                            mCallbacks.onEnroll(senderId);
                             MySQLiteOpenHelper.insertSubscription(context, followName);
                             Toast.makeText(getActivity(), getString(R.string.follow_yes), Toast.LENGTH_SHORT).show();
                         }

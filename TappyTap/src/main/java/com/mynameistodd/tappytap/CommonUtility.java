@@ -176,26 +176,29 @@ public class CommonUtility {
     }
 
     /**
-     * Unregister this account/device pair within the server.
+     * Unenroll this account/device pair within the server.
      */
-    static void unregister(final Context context, final String regId) {
+    static void unenroll(final Context context, final String regId, final String userId, final String senderId) {
         Log.i(TAG, "unregistering device (regId = " + regId + ")");
+        Log.i(TAG, "of user (userId = " + userId + ")");
+        Log.i(TAG, "for sender (senderId = " + senderId + ")");
+
         String serverUrl = SERVER_URL + "/unregister";
         Map<String, String> params = new HashMap<String, String>();
         params.put("regId", regId);
+        params.put("userId", userId);
+        params.put("senderId", senderId);
+
         try {
             post(serverUrl, params);
-            String message = context.getString(R.string.server_unregistered);
-            //displayMessage(context, message);
+            Log.i(TAG, context.getString(R.string.server_unregistered));
         } catch (IOException e) {
             // At this point the device is unregistered from GCM, but still
             // registered in the server.
             // We could try to unregister again, but it is not necessary:
             // if the server tries to send a message to the device, it will get
             // a "NotRegistered" error message and should unregister the device.
-            String message = context.getString(R.string.server_unregister_error,
-                    e.getMessage());
-            //displayMessage(context, message);
+            Log.i(TAG, context.getString(R.string.server_unregister_error, e.getMessage()));
         }
     }
 

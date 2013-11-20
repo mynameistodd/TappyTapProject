@@ -25,7 +25,7 @@ import java.io.IOException;
 public class MainActivity extends FragmentActivity implements
         ActionBar.TabListener,
         GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener,
-        SubscriptionsFragment.OnEnrollListener {
+        SubscriptionsFragment.SubscriptionCallbacks {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -220,7 +220,23 @@ public class MainActivity extends FragmentActivity implements
                 }
 
             }.execute(senderId);
+        }
+    }
 
+    @Override
+    public void onUnEnroll(String senderId) {
+        if (mPlusClient.isConnected())
+        {
+            new AsyncTask<String, Void, Void>() {
+
+                @Override
+                protected Void doInBackground(String... params) {
+                    String senderId = params[0];
+                    CommonUtility.unenroll(context, regid, mPlusClient.getAccountName(), senderId);
+                    return null;
+                }
+
+            }.execute(senderId);
         }
     }
 

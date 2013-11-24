@@ -26,9 +26,11 @@ public class SubscriptionsAdapter extends ArrayAdapter<Subscription> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater)context.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.list_subscription_item, null);
+        //View rowView = inflater.inflate(R.layout.list_subscription_item, null);
+        View rowView = inflater.inflate(android.R.layout.simple_list_item_1, null);
 
-        TextView subscribedTo = (TextView)rowView.findViewById(R.id.itemSubscriptionName);
+        //TextView subscribedTo = (TextView)rowView.findViewById(R.id.itemSubscriptionName);
+        TextView subscribedTo = (TextView)rowView.findViewById(android.R.id.text1);
 
         Subscription sub = objects.get(position);
 

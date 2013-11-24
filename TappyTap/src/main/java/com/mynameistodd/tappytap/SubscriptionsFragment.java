@@ -91,7 +91,8 @@ public class SubscriptionsFragment extends ListFragment {
                 Log.d(CommonUtility.TAG, "info id: " + info.id);
                 Log.d(CommonUtility.TAG, "subscription item: " + subscriptions.get((int) info.id).getId());
                 mCallbacks.onUnEnroll(String.valueOf(subscriptions.get((int) info.id).getId()));
-                //remove from database (or mark removed), update list
+                MySQLiteOpenHelper.deleteSubscription(context, subscriptions.get((int) info.id).getId());
+                refresh();
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -136,10 +137,14 @@ public class SubscriptionsFragment extends ListFragment {
         @Override
         public void onDismiss(DialogInterface dialog) {
             super.onDismiss(dialog);
-            subscriptions = MySQLiteOpenHelper.getAllSubscriptions(context);
-
-            adapter.clear();
-            adapter.addAll(subscriptions);
+            refresh();
         }
+    }
+
+    private void refresh() {
+        subscriptions = MySQLiteOpenHelper.getAllSubscriptions(context);
+
+        adapter.clear();
+        adapter.addAll(subscriptions);
     }
 }

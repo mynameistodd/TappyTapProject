@@ -64,6 +64,17 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         if (rows > 0) { return true; } else { return false; }
     }
 
+    public static boolean deleteSubscription(Context context, int id)
+    {
+        MySQLiteOpenHelper helper = new MySQLiteOpenHelper(context);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        String whereClause = BaseColumns._ID + " = ?";
+        String[] whereArgs = new String[] {String.valueOf(id)};
+        int rows = db.delete(SUBSCRIPTION_TABLE_NAME, whereClause, whereArgs);
+
+        if (rows > 0) { return true; } else { return false; }
+    }
+
     public static List<Subscription> getAllSubscriptions(Context context) {
         List<Subscription> subscriptions = new ArrayList<Subscription>();
         MySQLiteOpenHelper helper = new MySQLiteOpenHelper(context);

@@ -19,6 +19,9 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.plus.PlusClient;
+import com.parse.Parse;
+import com.parse.ParseAnalytics;
+import com.parse.ParseObject;
 
 import java.io.IOException;
 
@@ -54,8 +57,12 @@ public class MainActivity extends FragmentActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         intent = getIntent();
         context = this;
+
+        Parse.initialize(this, "78JyoCXlNML4mXSNlKFMVydAVJrp7jYN1ONLnVDU", "jEvbO9iVbzdCi2VrMi5XmAIyxpHgdbzy5QuX8jtA");
+        ParseAnalytics.trackAppOpened(getIntent());
 
         // Set up the action bar.
         final ActionBar actionBar = getActionBar();
@@ -107,6 +114,10 @@ public class MainActivity extends FragmentActivity implements
                 .setVisibleActivities("http://schemas.google.com/AddActivity", "http://schemas.google.com/BuyActivity")
                 .setScopes(Scopes.PLUS_LOGIN)  // Space separated list of scopes
                 .build();
+
+        ParseObject testObject = new ParseObject("TestObject");
+        testObject.put("foo", "bar");
+        testObject.saveInBackground();
     }
 
     @Override
